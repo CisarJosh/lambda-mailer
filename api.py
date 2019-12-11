@@ -1,6 +1,8 @@
 import boto3
 import os
 import re
+import json
+
 
 from botocore.exceptions import ClientError
 from flask import Flask, request, jsonify
@@ -53,19 +55,21 @@ def handle_client_error(error):
 
 @app.route('/', methods=['POST'])
 def index():
-    data = request.get_json(force=True)
+    data = json.loads(request.data.decode('utf-8'))
+    print(data)
+
     if not data:
         raise InvalidUsage('Request body cannot be empty.')
 
     for field in REQUIRED_FIELDS:
         value = data.get(field, None)
         if value is None:
-            raise InvalidUsage(u'Request body needs a "{}" field.'.format(field))
+            raise InvalidUsage(f'Request body needs a "{field}" field.')
         if not value.strip():
-            raise InvalidUsage(u'The "{}" field cannot be empty or spaces.'.format(field))
+            raise InvalidUsage(f'The "{field}" field cannot be empty or spaces.')
 
     if not re.match(EMAIL_REGEXP, data['email']):
-        raise InvalidUsage(u'The "email" field needs to be a valid email address.')
+        raise InvalidUsage(f'The "email" field needs to be a valid email address.')
 
     if '_important' in data:
         # Our code should have removed this field before POSTing.
@@ -74,18 +78,17 @@ def index():
 
     # Create a string with those fields that we do not recognize
     other_fields = set(data.keys()) - set(REQUIRED_FIELDS)
-    str_other_fields = u'\n'.join(
-        u'<strong>{}</strong>: {}<br>'.format(field, data[field]) for field in sorted(other_fields)
+    str_other_fields = f'\n'.join(
+        f'<strong>{field}</strong>: {data[field]}<br>' for field in sorted(other_fields)
     )
 
-    subject = u'Tryolabs contact form message from {} ({})'.format(data['name'], data['email'])
-    message = u'''<strong>name</strong>: {}<br>
-<strong>email</strong>: {}<br>
-{}
-<p>
-{}
-</p>
-'''.format(data['name'], data['email'], str_other_fields, data['message'].replace('\n', '<br>'))
+    subject = f"Quitesite contact form message from {data['name']} ({data['email']})"
+    message = (f"""<strong>name</strong>: {data['name'],}<br>
+        <strong>email</strong>: {data['email']}<br>
+        {str_other_fields}
+        <p>
+        {data['message']}
+        </p>""")
 
     response = ses.send_email(
         Source=FROM_EMAIL,
@@ -94,12 +97,12 @@ def index():
         },
         Message={
             'Subject': {
-                'Data': subject.encode('utf-8'),
+                'Data': subject,
                 'Charset': 'utf-8'
             },
             'Body': {
                 'Html': {
-                    'Data': message.encode('utf-8'),
+                    'Data': message,
                     'Charset': 'utf-8'
                 }
             }

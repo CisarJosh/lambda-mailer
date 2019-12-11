@@ -1,8 +1,8 @@
 {
     "dev": {
         "app_function": "api.app",
-        "aws_region": "us-west-2",
-        "s3_bucket": "zappa-emailsender-dev-lambda",
+        "aws_region": "us-east-1",
+        "s3_bucket": "quitesite-emailsender-dev-lambda",
         "attach_policy": "lambda-mailer-policy-dev.json",
         "method_header_types": [
             "Content-Type",
@@ -11,14 +11,14 @@
             "Access-Control-Allow-Methods"
         ],
         "environment_variables": {
-            "FROM_EMAIL": "hello@tryolabs.com",
-            "DESTINATION_EMAIL": "alan@tryolabs.com"
+            "FROM_EMAIL": "hello@quitesite.com",
+            "DESTINATION_EMAIL": "josh@quitesite.com"
         }
     },
     "prod": {
         "app_function": "api.app",
-        "aws_region": "us-west-2",
-        "s3_bucket": "zappa-emailsender-prod-lambda",
+        "aws_region": "us-east-1",
+        "s3_bucket": "quitesite-emailsender-prod-lambda",
         "attach_policy": "lambda-mailer-policy-prod.json",
         "method_header_types": [
             "Content-Type",
@@ -27,8 +27,8 @@
             "Access-Control-Allow-Methods"
         ],
         "environment_variables": {
-            "FROM_EMAIL": "hello@tryolabs.com",
-            "DESTINATION_EMAIL": "hello@tryolabs.com"
+            "FROM_EMAIL": "hello@quitesite.com",
+            "DESTINATION_EMAIL": "josh@quitesite.com"
         }
     }
 }
